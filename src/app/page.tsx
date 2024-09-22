@@ -11,7 +11,7 @@ const Page = () => {
   const { authStore } = createServerClient(cookieStore);
 
   return (
-    <div suppressHydrationWarning>
+    <div>
       <div>
         <header className="fixed top-0 left-0 z-50 w-full bg-background shadow-sm antialiased">
           <div className="container flex h-16 items-center justify-between px-4 md:px-6">
