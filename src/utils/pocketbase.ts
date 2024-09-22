@@ -14,7 +14,8 @@ export function createServerClient(cookieStore?: ReadonlyRequestCookies) {
   }
 
   const client = new PocketBase(
-    process.env.NEXT_PUBLIC_POCKETBASE_API_URL
+    "https://suggest-colony.pockethost.io"
+    // process.env.NEXT_PUBLIC_POCKETBASE_API_URL
   ) as TypedPocketBase;
 
   if (cookieStore) {
@@ -37,7 +38,8 @@ export function createBrowserClient() {
 
   const createNewClient = () => {
     return new PocketBase(
-      process.env.NEXT_PUBLIC_POCKETBASE_API_URL
+      "https://suggest-colony.pockethost.io"
+      //process.env.NEXT_PUBLIC_POCKETBASE_API_URL
     ) as TypedPocketBase;
   };
 

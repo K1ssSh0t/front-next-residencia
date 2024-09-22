@@ -7,14 +7,16 @@ import { createServerClient } from "@/utils/pocketbase";
 // If auth is not valid for matching routes
 // Redirect to a redirect path
 export function middleware(request: NextRequest) {
-  const redirect_path = "http://localhost:3000/auth";
+  const url = request.nextUrl.clone();
+
+  const redirect_path = (url.pathname = "/");
 
   const cookieStore = cookies();
 
   const { authStore } = createServerClient(cookieStore);
 
   if (!authStore.isValid) {
-    return NextResponse.redirect(redirect_path);
+    return NextResponse.redirect(new URL("/", request.url));
   }
 }
 
@@ -27,8 +29,9 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - login (login route)
+     * - admin (admin login route)
      * - / (root path)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|login|$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|login|admin|$).*)",
   ],
 };
