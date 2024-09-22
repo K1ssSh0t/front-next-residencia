@@ -1,7 +1,4 @@
-"use client";
-import { createBrowserClient } from "@/utils/pocketbase";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { createServerClient } from "@/utils/pocketbase";
 import {
   Card,
   CardHeader,
@@ -20,31 +17,28 @@ import {
 } from "@/components/ui/table";
 import { AgregarEscuelas } from "./agregar-escuela";
 import { AcualizarEscuela } from "./acualizar-escuela";
-import { ModeToggle } from "@/components/mode-toggle";
+import { redirect } from 'next/navigation';
+import { cookies } from "next/headers";
 
-function Usuarios() {
-  const client = createBrowserClient();
+export const dynamic = 'force-dynamic'
+
+
+async function Usuarios() {
+  const cookieStore = cookies();
+
+  const client = createServerClient(cookieStore);
+
+ 
   const a = client.authStore.isAdmin;
-  const [escuelas, setEscuelas] = useState<any>([]);
-  const navigate = useRouter();
 
-  useEffect(() => {
-    if (!a) {
-      navigate.push("/");
-    }
-    // you can also fetch all records at once via getFullList
-    const records = async () => {
-      const data = await client.collection("escuelas").getFullList({
-        sort: "-created",
-      });
 
-      return data;
-    };
+  if (!a) {
+    redirect("/");
+  }
 
-    records()
-      .then((value) => setEscuelas(value))
-      .catch((error) => console.log(error));
-  }, []);
+  const escuelas = await client.collection("escuelas").getFullList({
+    sort: "-created",
+  });
 
   return (
     <div className="container mx-auto my-8">
@@ -70,25 +64,23 @@ function Usuarios() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {escuelas?.map((item: any) => {
-                  return (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">
-                        {item.username}
-                      </TableCell>
-                      <TableCell>Escuela Primaria Acme</TableCell>
-                      <TableCell>{item.id}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <AcualizarEscuela Escuela={item} />
-                          <Button variant="outline" size="sm" color="red">
-                            Eliminar
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {escuelas?.map((item: any) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">
+                      {item.username}
+                    </TableCell>
+                    <TableCell>Escuela Primaria Acme</TableCell>
+                    <TableCell>{item.id}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <AcualizarEscuela Escuela={item} />
+                        <Button variant="outline" size="sm" color="red">
+                          Eliminar
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </CardContent>

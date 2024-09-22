@@ -1,8 +1,5 @@
-"use client";
-
-import { createBrowserClient } from "@/utils/pocketbase";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { createServerClient } from '@/utils/pocketbase';
+import { redirect } from 'next/navigation';
 import {
   Card,
   CardHeader,
@@ -10,7 +7,6 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
@@ -20,31 +16,24 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { ExportCSV } from "./descargar-csv";
+import { cookies } from 'next/headers';
 
-function ListaPreguntas() {
-  const client = createBrowserClient();
+async function ListaPreguntas() {
+  const cookieStore = cookies();
+
+  const client = createServerClient(cookieStore);
+
+ 
   const a = client.authStore.isAdmin;
-  const [preguntas, setPreguntas] = useState<any>([]);
-  const navigate = useRouter();
 
-  useEffect(() => {
-    if (!a) {
-      navigate.push("/");
-    }
-    // you can also fetch all records at once via getFullList
-    const records = async () => {
-      const data = await client.collection("test_preguntas").getFullList({
-        sort: "-created",
-        expand: "escuela",
-      });
-      console.log(data);
-      return data;
-    };
 
-    records()
-      .then((value) => setPreguntas(value))
-      .catch((error) => console.log(error));
-  }, []);
+  if (!a) {
+    redirect("/");
+  }
+  const preguntas = await client.collection("test_preguntas").getFullList({
+    sort: "-created",
+    expand: "escuela",
+  });
 
   return (
     <div className="container mx-auto my-8">
@@ -72,15 +61,13 @@ function ListaPreguntas() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {preguntas?.map((item: any) => {
-                  return (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.tes1}</TableCell>
-                      <TableCell>{JSON.stringify(item.test2)}</TableCell>
-                      <TableCell>{item.expand?.escuela?.username}</TableCell>
-                    </TableRow>
-                  );
-                })}
+                {preguntas?.map((item: any) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">{item.tes1}</TableCell>
+                    <TableCell>{JSON.stringify(item.test2)}</TableCell>
+                    <TableCell>{item.expand?.escuela?.username}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </CardContent>

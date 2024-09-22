@@ -30,10 +30,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function AgregarEscuelas() {
   const client = createBrowserClient();
   const navigate = useRouter();
+  const [open, setOpen] = useState(false);
 
   const formSchema = z
     .object({
@@ -75,17 +77,20 @@ export function AgregarEscuelas() {
 
     fetchData()
       .then(() => {
-        navigate.push("/dashboard/listausuarios");
+        setOpen(false);
+        form.reset();
         navigate.refresh();
+        navigate.push("/dashboard/listausuarios");
+      
 
-        window.location.reload(true);
+       // window.location.reload();
       })
       .catch((error) => {
         console.log("Error", error);
       });
   }
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Agregar Escuela ➕</Button>
       </DialogTrigger>

@@ -54,7 +54,7 @@ export default function AdminLogin() {
     console.log(values);
     try {
       await client.admins.authWithPassword(values.username, values.password);
-      navigate.push("/dashboard/lista_usuarios");
+      navigate.push("/dashboard/listausuarios");
     } catch (error) {
       console.log(error);
     } finally {
