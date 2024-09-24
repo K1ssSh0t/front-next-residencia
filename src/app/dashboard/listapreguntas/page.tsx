@@ -18,14 +18,17 @@ import {
 import { ExportCSV } from "./descargar-csv";
 import { cookies } from 'next/headers';
 
+import { ActualizarReglas } from './actualizar-reglas';
+
 async function ListaPreguntas() {
   const cookieStore = cookies();
 
   const client = createServerClient(cookieStore);
 
- 
+
   const a = client.authStore.isAdmin;
 
+  let estadoCuestionario = "";
 
   if (!a) {
     redirect("/");
@@ -34,6 +37,14 @@ async function ListaPreguntas() {
     sort: "-created",
     expand: "escuela",
   });
+
+  const collection = await client.collections.getOne('test_preguntas');
+  if (collection.updateRule == "escuela = @request.auth.id && activa = true" && collection.createRule == "@request.auth.id != null && activa = true") {
+    estadoCuestionario = "Desactivado"
+
+  } else {
+    estadoCuestionario = "Activado"
+  }
 
   return (
     <div className="container mx-auto my-8">
@@ -48,7 +59,11 @@ async function ListaPreguntas() {
             </div>
           </CardHeader>
           <CardContent>
+            <div>{collection.createRule}</div>
+            <div>{collection.updateRule}</div>
+            <div>Estado del Cuestionario: {estadoCuestionario}</div>
             <div className=" flex justify-end">
+              <ActualizarReglas datos={estadoCuestionario}/>
               <ExportCSV data={preguntas} />
             </div>
 
