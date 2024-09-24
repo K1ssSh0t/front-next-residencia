@@ -19,6 +19,7 @@ import { AgregarEscuelas } from "./agregar-escuela";
 import { AcualizarEscuela } from "./acualizar-escuela";
 import { redirect } from 'next/navigation';
 import { cookies } from "next/headers";
+import { Badge } from "@/components/ui/badge"
 
 export const dynamic = 'force-dynamic'
 
@@ -39,6 +40,32 @@ async function Usuarios() {
   const escuelas = await client.collection("escuelas").getFullList({
     sort: "-created",
   });
+
+  // Para cada escuela, obtener el estado del cuestionario
+  const escuelasConEstado = await Promise.all(
+    escuelas.map(async (escuela: any) => {
+      const preguntas = await client.collection("test_preguntas").getFullList({
+        filter: `escuela = "${escuela.id}"`,
+        requestKey: null,
+      });
+
+      // Determinar el estado del cuestionario
+      let estado = 'Sin empezar';
+      if (preguntas.length > 0) {
+        const completadas = preguntas.filter((pregunta: any) => pregunta.test2 === true);
+        if (completadas.length === preguntas.length) {
+          estado = 'Terminado';
+        } else {
+          estado = 'En progreso';
+        }
+      }
+
+      return {
+        ...escuela,
+        estadoCuestionario: estado,
+      };
+    })
+  );
 
   return (
     <div className="container mx-auto my-8">
@@ -64,13 +91,19 @@ async function Usuarios() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {escuelas?.map((item: any) => (
+                {escuelasConEstado?.map((item: any) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">
                       {item.username}
                     </TableCell>
                     <TableCell>Escuela Primaria Acme</TableCell>
                     <TableCell>{item.id}</TableCell>
+                    <TableCell>
+                      
+                      <Badge className=" gap-2 " variant="outline">
+                      <EstadoIcon estado={item.estadoCuestionario} />
+                      {item.estadoCuestionario}</Badge>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <AcualizarEscuela Escuela={item} />
@@ -109,4 +142,30 @@ function MountainIcon(props: any) {
       <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
     </svg>
   );
+}
+
+// Íconos SVG para los diferentes estados
+function EstadoIcon({ estado }: { estado: string }) {
+  if (estado === 'Sin empezar') {
+    return (
+      <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="8" r="7" stroke="#e74c3c" strokeWidth="2" />
+      </svg>
+    );
+  } else if (estado === 'En progreso') {
+    return (
+      <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="8" r="7" stroke="#f39c12" strokeWidth="2" />
+        <path d="M8 4v4h4" stroke="#f39c12" strokeWidth="2" />
+      </svg>
+    );
+  } else if (estado === 'Terminado') {
+    return (
+      <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="8" r="7" stroke="#2ecc71" strokeWidth="2" fill="#2ecc71" />
+        <path d="M6 8l2 2 4-4" stroke="white" strokeWidth="2" />
+      </svg>
+    );
+  }
+  return null;
 }
