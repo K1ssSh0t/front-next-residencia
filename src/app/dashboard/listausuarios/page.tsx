@@ -41,14 +41,26 @@ async function Usuarios() {
     sort: "-created",
   });
 
-  // Para cada escuela, obtener el estado del cuestionario
-  const escuelasConEstado = await Promise.all(
-    escuelas.map(async (escuela: any) => {
-      const preguntas = await client.collection("test_preguntas").getFullList({
-        filter: `escuela = "${escuela.id}"`,
-        requestKey: null,
-      });
+    // Obtener todas las preguntas de una sola vez
+    const todasLasPreguntas = await client.collection("test_preguntas").getFullList();
 
+    // Agrupar las preguntas por la escuela
+    const preguntasPorEscuela: { [key: string]: any[] } = todasLasPreguntas.reduce(
+      (acc: any, pregunta: any) => {
+        const escuelaId = pregunta.escuela;
+        if (!acc[escuelaId]) {
+          acc[escuelaId] = [];
+        }
+        acc[escuelaId].push(pregunta);
+        return acc;
+      },
+      {}
+    );
+  
+    // Para cada escuela, calcular el estado del cuestionario
+    const escuelasConEstado = escuelas.map((escuela: any) => {
+      const preguntas = preguntasPorEscuela[escuela.id] || [];
+  
       // Determinar el estado del cuestionario
       let estado = 'Sin empezar';
       if (preguntas.length > 0) {
@@ -59,13 +71,12 @@ async function Usuarios() {
           estado = 'En progreso';
         }
       }
-
+  
       return {
         ...escuela,
         estadoCuestionario: estado,
       };
-    })
-  );
+    });
 
   return (
     <div className="container mx-auto my-8">
