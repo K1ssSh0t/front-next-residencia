@@ -100,7 +100,7 @@ export function AcualizarEscuela({ Escuela }: any) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          Acutualizar ✒️
+          Actualizar ✒️
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

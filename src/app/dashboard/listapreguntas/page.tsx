@@ -62,7 +62,7 @@ async function ListaPreguntas() {
             <div>{collection.createRule}</div>
             <div>{collection.updateRule}</div>
             <div>Estado del Cuestionario: {estadoCuestionario}</div>
-            <div className=" flex justify-end">
+            <div className=" flex items-center justify-between">
               <ActualizarReglas datos={estadoCuestionario}/>
               <ExportCSV data={preguntas} />
             </div>

@@ -98,7 +98,9 @@ async function Usuarios() {
                   <TableHead>Username</TableHead>
                   <TableHead>Nombre Completo</TableHead>
                   <TableHead>Código de Centro</TableHead>
+                  <TableHead>Estado del Cuestionario</TableHead>
                   <TableHead>Acciones</TableHead>
+             
                 </TableRow>
               </TableHeader>
               <TableBody>

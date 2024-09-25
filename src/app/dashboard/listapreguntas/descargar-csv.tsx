@@ -2,12 +2,26 @@
 import { Button } from "@/components/ui/button";
 
 export const ExportCSV = ({ data }: any) => {
+  console.log(data)
   // Function to convert the array of objects to CSV format
+  const formatData = (array: any) => {
+    return array
+      .filter((item: any) => item.expand?.escuela?.username) // Verifica si existe escuela y username
+      .map((item: any) => ({
+        ...item, // Mantén los datos originales
+        escuela: item.expand.escuela.username, // Extrae solo el username
+      }));
+  };
+
+  
   const convertArrayToCSV = (array: any) => {
     const csvRows = [];
 
     // Get the headers from the keys of the first object
-    const headers = Object.keys(array[0]);
+   // Get the headers from the keys of the first object, excluding specific columns
+  const headers = Object.keys(array[0]).filter(header => !["expand", "updated","created","collectionName","collectionId"].includes(header)); // Excluir columnas
+
+ 
     csvRows.push(headers.join(",")); // Add headers row
 
     // Loop through the array and convert each object to a CSV row
@@ -25,7 +39,8 @@ export const ExportCSV = ({ data }: any) => {
 
   // Function to trigger CSV download
   const downloadCSV = () => {
-    const csvData = convertArrayToCSV(data); // Convert data to CSV format
+    const formattedData = formatData(data); // Format the data to include only the username
+    const csvData = convertArrayToCSV(formattedData); // Convert data to CSV format
     const blob = new Blob([csvData], { type: "text/csv" }); // Create a Blob from the CSV data
     const url = window.URL.createObjectURL(blob); // Create a temporary URL for the Blob
 
