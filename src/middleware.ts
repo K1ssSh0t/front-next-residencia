@@ -18,6 +18,16 @@ export function middleware(request: NextRequest) {
   if (!authStore.isValid) {
     return NextResponse.redirect(new URL("/", request.url));
   }
+
+  // Restricted paths for admins only
+  if (
+    (url.pathname === "dashboard/listausuarios" ||
+      url.pathname === "dashboard/listapreguntas") &&
+    !authStore.isAdmin()
+  ) {
+    console.log("Solo admins");
+    return NextResponse.redirect(new URL("/", request.url));
+  }
 }
 
 export const config = {
