@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { createBrowserClient } from "@/utils/pocketbase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import React from "react";
 
 export default function Preguntas() {
   const navigate = useRouter();

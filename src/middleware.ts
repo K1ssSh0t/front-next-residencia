@@ -20,13 +20,11 @@ export function middleware(request: NextRequest) {
   }
 
   // Restricted paths for admins only
-  if (
-    (url.pathname === "dashboard/listausuarios" ||
-      url.pathname === "dashboard/listapreguntas") &&
-    !authStore.isAdmin()
-  ) {
-    console.log("Solo admins");
-    return NextResponse.redirect(new URL("/", request.url));
+  if (request.nextUrl.pathname.startsWith("/dashboard")) {
+    if (!authStore.isAdmin) {
+      console.error("Solo admins");
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 }
 

@@ -29,54 +29,46 @@ async function Usuarios() {
 
   const client = createServerClient(cookieStore);
 
- 
-  const a = client.authStore.isAdmin;
-
-
-  if (!a) {
-    redirect("/");
-  }
-
   const escuelas = await client.collection("escuelas").getFullList({
     sort: "-created",
   });
 
-    // Obtener todas las preguntas de una sola vez
-    const todasLasPreguntas = await client.collection("test_preguntas").getFullList();
+  // Obtener todas las preguntas de una sola vez
+  const todasLasPreguntas = await client.collection("test_preguntas").getFullList();
 
-    // Agrupar las preguntas por la escuela
-    const preguntasPorEscuela: { [key: string]: any[] } = todasLasPreguntas.reduce(
-      (acc: any, pregunta: any) => {
-        const escuelaId = pregunta.escuela;
-        if (!acc[escuelaId]) {
-          acc[escuelaId] = [];
-        }
-        acc[escuelaId].push(pregunta);
-        return acc;
-      },
-      {}
-    );
-  
-    // Para cada escuela, calcular el estado del cuestionario
-    const escuelasConEstado = escuelas.map((escuela: any) => {
-      const preguntas = preguntasPorEscuela[escuela.id] || [];
-  
-      // Determinar el estado del cuestionario
-      let estado = 'Sin empezar';
-      if (preguntas.length > 0) {
-        const completadas = preguntas.filter((pregunta: any) => pregunta.test2 === true);
-        if (completadas.length === preguntas.length) {
-          estado = 'Terminado';
-        } else {
-          estado = 'En progreso';
-        }
+  // Agrupar las preguntas por la escuela
+  const preguntasPorEscuela: { [key: string]: any[] } = todasLasPreguntas.reduce(
+    (acc: any, pregunta: any) => {
+      const escuelaId = pregunta.escuela;
+      if (!acc[escuelaId]) {
+        acc[escuelaId] = [];
       }
-  
-      return {
-        ...escuela,
-        estadoCuestionario: estado,
-      };
-    });
+      acc[escuelaId].push(pregunta);
+      return acc;
+    },
+    {}
+  );
+
+  // Para cada escuela, calcular el estado del cuestionario
+  const escuelasConEstado = escuelas.map((escuela: any) => {
+    const preguntas = preguntasPorEscuela[escuela.id] || [];
+
+    // Determinar el estado del cuestionario
+    let estado = 'Sin empezar';
+    if (preguntas.length > 0) {
+      const completadas = preguntas.filter((pregunta: any) => pregunta.test2 === true);
+      if (completadas.length === preguntas.length) {
+        estado = 'Terminado';
+      } else {
+        estado = 'En progreso';
+      }
+    }
+
+    return {
+      ...escuela,
+      estadoCuestionario: estado,
+    };
+  });
 
   return (
     <div className="container mx-auto my-8">
@@ -100,7 +92,7 @@ async function Usuarios() {
                   <TableHead>Código de Centro</TableHead>
                   <TableHead>Estado del Cuestionario</TableHead>
                   <TableHead>Acciones</TableHead>
-             
+
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -112,10 +104,10 @@ async function Usuarios() {
                     <TableCell>Escuela Primaria Acme</TableCell>
                     <TableCell>{item.id}</TableCell>
                     <TableCell>
-                      
+
                       <Badge className=" gap-2 " variant="outline">
-                      <EstadoIcon estado={item.estadoCuestionario} />
-                      {item.estadoCuestionario}</Badge>
+                        <EstadoIcon estado={item.estadoCuestionario} />
+                        {item.estadoCuestionario}</Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">

@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@/utils/pocketbase";
 import Link from "next/link";
 import CerrarSesion from "@/components/Login-Button";
+import React from "react";
 
 const Page = () => {
   const cookieStore = cookies();
@@ -33,7 +34,7 @@ const Page = () => {
               </Button>
               <Button
                 variant="outline"
-                // onClick={() => console.log("fdsfdsf")}
+              // onClick={() => console.log("fdsfdsf")}
               >
                 Button
               </Button>

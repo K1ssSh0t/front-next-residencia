@@ -25,14 +25,8 @@ async function ListaPreguntas() {
 
   const client = createServerClient(cookieStore);
 
-
-  const a = client.authStore.isAdmin;
-
   let estadoCuestionario = "";
 
-  if (!a) {
-    redirect("/");
-  }
   const preguntas = await client.collection("test_preguntas").getFullList({
     sort: "-created",
     expand: "escuela",
@@ -63,7 +57,7 @@ async function ListaPreguntas() {
             <div>{collection.updateRule}</div>
             <div>Estado del Cuestionario: {estadoCuestionario}</div>
             <div className=" flex items-center justify-between">
-              <ActualizarReglas datos={estadoCuestionario}/>
+              <ActualizarReglas datos={estadoCuestionario} />
               <ExportCSV data={preguntas} />
             </div>
 
