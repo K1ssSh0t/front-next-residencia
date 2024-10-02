@@ -2,11 +2,12 @@ import CerrarSesion from "@/components/Login-Button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { createServerClient } from "@/utils/pocketbase";
+import { createServer } from "http";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import React from "react";
 
-export default function PreguntasLayout({
+export default function AutenticacionLayout({
     children, // will be a page or nested layout
 }: {
     children: React.ReactNode;
@@ -35,11 +36,19 @@ export default function PreguntasLayout({
                         </Button>
 
                         {client.authStore.isValid ? (
-                            <>
-                                <CerrarSesion />
+
+                            <> <CerrarSesion />
                                 <Button variant="outline" asChild>
                                     <Link href="/">Inicio</Link>
-                                </Button>
+                                </Button>  {
+                                    client.authStore.isAdmin ? (
+                                        <Button variant="outline" asChild>
+                                            <Link href="/listapreguntas">Admin</Link>
+                                        </Button>
+                                    ) : <Button variant="outline" asChild>
+                                        <Link href="/preguntas">Preguntas</Link>
+                                    </Button>
+                                }
                             </>
                         ) : (
                             <Button variant="outline" asChild>
