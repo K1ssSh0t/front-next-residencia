@@ -30,7 +30,7 @@ export default function AdminLogin() {
     console.log(client.authStore.isValid);
     if (client.authStore.isAdmin) {
       console.log("test1");
-      navigate.push("/dashboard/listausuarios");
+      navigate.push("/listausuarios");
     }
     if (client.authStore.isValid == true && client.authStore.isAdmin != true) {
       console.log("test 2");
@@ -54,7 +54,7 @@ export default function AdminLogin() {
     console.log(values);
     try {
       await client.admins.authWithPassword(values.username, values.password);
-      navigate.push("/dashboard/listausuarios");
+      navigate.push("/listausuarios");
     } catch (error) {
       console.log(error);
     } finally {

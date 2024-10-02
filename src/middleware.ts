@@ -15,12 +15,15 @@ export function middleware(request: NextRequest) {
 
   const { authStore } = createServerClient(cookieStore);
 
+  // Rutas que requieren autenticación de administrador
+  const adminRoutes = ["/listausuarios", "/listapreguntas"];
+
   if (!authStore.isValid) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
   // Restricted paths for admins only
-  if (request.nextUrl.pathname.startsWith("/dashboard")) {
+  if (adminRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
     if (!authStore.isAdmin) {
       console.error("Solo admins");
       return NextResponse.redirect(new URL("/", request.url));

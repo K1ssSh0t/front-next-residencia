@@ -80,10 +80,10 @@ export function AgregarEscuelas() {
         setOpen(false);
         form.reset();
         navigate.refresh();
-        navigate.push("/dashboard/listausuarios");
-      
+        navigate.push("/listausuarios");
 
-       // window.location.reload();
+
+        // window.location.reload();
       })
       .catch((error) => {
         console.log("Error", error);

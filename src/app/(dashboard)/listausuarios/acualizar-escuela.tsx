@@ -86,10 +86,10 @@ export function AcualizarEscuela({ Escuela }: any) {
       .then(() => {
         setOpen(false);
         navigate.refresh();
-        navigate.push("/dashboard/listausuarios");
-       
-      /* TODO:  HACER UNA ACTUALIZACON COMPLETA SI NO FUNCION EL CODIGO DE ARRBIBA
-      */
+        navigate.push("/listausuarios");
+
+        /* TODO:  HACER UNA ACTUALIZACON COMPLETA SI NO FUNCION EL CODIGO DE ARRBIBA
+        */
         //window.location.reload();
       })
       .catch((error) => {
@@ -155,9 +155,9 @@ export function AcualizarEscuela({ Escuela }: any) {
                 </FormItem>
               )}
             />
-        
+
             <Button type="submit">Enviar</Button>
-        
+
           </form>
         </Form>
         <DialogFooter></DialogFooter>
