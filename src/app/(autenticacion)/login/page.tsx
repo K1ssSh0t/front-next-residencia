@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
+
+  // TODO: Cambiar a que use las nuevas colecciones 
   const client = createBrowserClient();
   const navigate = useRouter();
   const formSchema = z.object({
