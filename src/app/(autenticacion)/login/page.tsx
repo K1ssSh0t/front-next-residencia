@@ -50,7 +50,7 @@ export default function Login() {
     console.log(values);
     try {
       await client
-        .collection("escuelas")
+        .collection("institucion")
         .authWithPassword(values.username, values.password);
       navigate.push("/preguntas");
     } catch (error) {
@@ -69,7 +69,7 @@ export default function Login() {
               <FormItem>
                 <FormLabel>Username</FormLabel>
                 <FormControl>
-                  <Input placeholder="shadcn" {...field} />
+                  <Input placeholder="" {...field} />
                 </FormControl>
                 <FormDescription>
                   This is your public display name.

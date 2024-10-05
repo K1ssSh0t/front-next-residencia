@@ -29,8 +29,9 @@ async function Usuarios() {
 
   const client = createServerClient(cookieStore);
 
-  const escuelas = await client.collection("escuelas").getFullList({
+  const escuelas = await client.collection("institucion").getFullList({
     sort: "-created",
+    expand: "nivelEducativo,tipoInstitucion,tipoBachiller",
   });
 
   // Obtener todas las preguntas de una sola vez
@@ -87,27 +88,36 @@ async function Usuarios() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Nombre Completo</TableHead>
-                  <TableHead>Código de Centro</TableHead>
-                  <TableHead>Estado del Cuestionario</TableHead>
-                  <TableHead>Acciones</TableHead>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Region</TableHead>
+                  <TableHead>Municipio</TableHead>
+                  <TableHead>Nivel Educativo</TableHead>
+                  <TableHead>Tipo de Institucion</TableHead>
+                  <TableHead>Tipo de Bachiller</TableHead>
+                  <TableHead className="flex items-center justify-center">Acciones</TableHead>
 
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {escuelasConEstado?.map((item: any) => (
+              <TableBody className=" capitalize">
+                {escuelas?.map((item: any) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">
                       {item.username}
                     </TableCell>
-                    <TableCell>Escuela Primaria Acme</TableCell>
-                    <TableCell>{item.id}</TableCell>
+                    <TableCell>{item.region}</TableCell>
+                    <TableCell>{item.municipio}</TableCell>
                     <TableCell>
 
-                      <Badge className=" gap-2 " variant="outline">
-                        <EstadoIcon estado={item.estadoCuestionario} />
-                        {item.estadoCuestionario}</Badge>
+                      {item.expand?.nivelEducativo?.descripcion}
+
+                    </TableCell>
+                    <TableCell>
+
+                      {item.expand?.tipoInstitucion?.descripcion}
+                    </TableCell>
+                    <TableCell>
+
+                      {item.expand?.tipoBachiller?.descripcion ?? "no aplica"}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">

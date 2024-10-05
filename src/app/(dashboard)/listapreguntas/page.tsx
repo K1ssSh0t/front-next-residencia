@@ -27,9 +27,10 @@ async function ListaPreguntas() {
 
   let estadoCuestionario = "";
 
-  const preguntas = await client.collection("test_preguntas").getFullList({
+  //TODO: HACER QUE SE MUESTREN TODAS LOS CAMPOS DE UNA ESCUELA EN UNA SOLA FILA
+  const preguntas = await client.collection("estadisticaSuperior").getFullList({
     sort: "-created",
-    expand: "escuela",
+    expand: "idInstitucion,categoriaPersona,genero",
   });
 
   const collection = await client.collections.getOne('test_preguntas');
@@ -64,17 +65,19 @@ async function ListaPreguntas() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Nombre Completo</TableHead>
-                  <TableHead>Código de Centro</TableHead>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead>Genero</TableHead>
+                  <TableHead>Cantidad</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className='capitalize'>
                 {preguntas?.map((item: any) => (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.tes1}</TableCell>
-                    <TableCell>{JSON.stringify(item.test2)}</TableCell>
-                    <TableCell>{item.expand?.escuela?.username}</TableCell>
+                    <TableCell className="font-medium">{item.expand?.idInstitucion?.username}</TableCell>
+                    <TableCell>{item.expand?.categoriaPersona?.descripcion}</TableCell>
+                    <TableCell>{item.expand?.genero?.descripcion}</TableCell>
+                    <TableCell>{item.cantidad}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
