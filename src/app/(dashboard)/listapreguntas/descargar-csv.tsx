@@ -6,22 +6,22 @@ export const ExportCSV = ({ data }: any) => {
   // Function to convert the array of objects to CSV format
   const formatData = (array: any) => {
     return array
-      .filter((item: any) => item.expand?.escuela?.username) // Verifica si existe escuela y username
+      .filter((item: any) => item.expand?.idInstitucion?.nombre) // Verifica si existe escuela y username
       .map((item: any) => ({
         ...item, // Mantén los datos originales
-        escuela: item.expand.escuela.username, // Extrae solo el username
+        escuela: item.expand.idInstitucion.nombre, // Extrae solo el username
       }));
   };
 
-  
+
   const convertArrayToCSV = (array: any) => {
     const csvRows = [];
 
     // Get the headers from the keys of the first object
-   // Get the headers from the keys of the first object, excluding specific columns
-  const headers = Object.keys(array[0]).filter(header => !["expand", "updated","created","collectionName","collectionId"].includes(header)); // Excluir columnas
+    // Get the headers from the keys of the first object, excluding specific columns
+    const headers = Object.keys(array[0]).filter(header => !["expand", "updated", "created", "collectionName", "collectionId"].includes(header)); // Excluir columnas
 
- 
+
     csvRows.push(headers.join(",")); // Add headers row
 
     // Loop through the array and convert each object to a CSV row

@@ -58,7 +58,7 @@ export function AcualizarEscuela({ Escuela }: any) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: Escuela.username,
+      username: Escuela?.username,
       password: "",
       passwordConfirm: "",
     },

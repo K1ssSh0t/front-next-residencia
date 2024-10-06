@@ -34,6 +34,10 @@ async function Usuarios() {
     expand: "nivelEducativo,tipoInstitucion,tipoBachiller,usuario",
   });
 
+  const usuarios = await client.collection("usuario").getFullList({
+    sort: "-created",
+  });
+
   // Obtener todas las preguntas de una sola vez
   const todasLasPreguntas = await client.collection("test_preguntas").getFullList();
 

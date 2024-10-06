@@ -20,6 +20,12 @@ import { cookies } from 'next/headers';
 
 import { ActualizarReglas } from './actualizar-reglas';
 
+interface InstitucionData {
+  nombre: string;
+  datos: Record<string, number>;
+  codigo: string;
+}
+
 async function ListaPreguntas() {
   const cookieStore = cookies();
 
@@ -30,7 +36,7 @@ async function ListaPreguntas() {
   //TODO: HACER QUE SE MUESTREN TODAS LOS CAMPOS DE UNA ESCUELA EN UNA SOLA FILA
   const preguntas = await client.collection("estadisticaSuperior").getFullList({
     sort: "-created",
-    expand: "idInstitucion,categoriaPersona,genero",
+    expand: "idInstitucion.usuario,categoriaPersona,genero",
   });
 
   const collection = await client.collections.getOne('test_preguntas');
@@ -40,6 +46,28 @@ async function ListaPreguntas() {
   } else {
     estadoCuestionario = "Activado"
   }
+
+  // Agrupar los datos por institución
+  const datosAgrupados = preguntas.reduce<Record<string, InstitucionData>>((acc, item) => {
+    const idInstitucion = item.expand?.idInstitucion?.id;
+    if (idInstitucion) {
+      if (!acc[idInstitucion]) {
+        acc[idInstitucion] = {
+          codigo: item.expand?.idInstitucion.expand.usuario.username,
+          nombre: item.expand?.idInstitucion.nombre,
+          datos: {}
+        };
+      }
+      const key = `${item.expand?.categoriaPersona?.descripcion}-${item.expand?.genero?.descripcion}`;
+      acc[idInstitucion].datos[key] = (acc[idInstitucion].datos[key] || 0) + item.cantidad;
+    }
+    return acc;
+  }, {});
+
+  // Obtener todas las categorías y géneros únicos
+  const categoriasGeneros = Array.from(new Set(preguntas.map(item =>
+    `${item.expand?.categoriaPersona?.descripcion}-${item.expand?.genero?.descripcion}`
+  )));
 
   return (
     <div className="container mx-auto my-8">
@@ -64,20 +92,22 @@ async function ListaPreguntas() {
 
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="capitalize">
                   <TableHead>Nombre</TableHead>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead>Genero</TableHead>
-                  <TableHead>Cantidad</TableHead>
+                  <TableHead>Codigo de Centro</TableHead>
+                  {categoriasGeneros.map(cg => (
+                    <TableHead key={cg}>{cg}</TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody className='capitalize'>
-                {preguntas?.map((item: any) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.expand?.idInstitucion?.username}</TableCell>
-                    <TableCell>{item.expand?.categoriaPersona?.descripcion}</TableCell>
-                    <TableCell>{item.expand?.genero?.descripcion}</TableCell>
-                    <TableCell>{item.cantidad}</TableCell>
+                {Object.values(datosAgrupados).map((institucion) => (
+                  <TableRow key={institucion.nombre}>
+                    <TableCell className="font-medium">{institucion.nombre}</TableCell>
+                    <TableCell className="font-medium">{institucion.codigo}</TableCell>
+                    {categoriasGeneros.map(cg => (
+                      <TableCell key={cg}>{institucion.datos[cg] || 0}</TableCell>
+                    ))}
                   </TableRow>
                 ))}
               </TableBody>
