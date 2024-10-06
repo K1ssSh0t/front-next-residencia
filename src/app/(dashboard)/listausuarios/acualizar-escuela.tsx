@@ -76,7 +76,7 @@ export function AcualizarEscuela({ Escuela }: any) {
     // ✅ This will be type-safe and validated.
     async function fetchData() {
       const record = await client
-        .collection("institucion")
+        .collection("usuario")
         .update(Escuela.id, data);
       console.log(record);
       return record;

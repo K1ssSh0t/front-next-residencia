@@ -31,7 +31,7 @@ async function Usuarios() {
 
   const escuelas = await client.collection("institucion").getFullList({
     sort: "-created",
-    expand: "nivelEducativo,tipoInstitucion,tipoBachiller",
+    expand: "nivelEducativo,tipoInstitucion,tipoBachiller,usuario",
   });
 
   // Obtener todas las preguntas de una sola vez
@@ -88,6 +88,7 @@ async function Usuarios() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Codigo de Centro</TableHead>
                   <TableHead>Nombre</TableHead>
                   <TableHead>Region</TableHead>
                   <TableHead>Municipio</TableHead>
@@ -101,8 +102,11 @@ async function Usuarios() {
               <TableBody className=" capitalize">
                 {escuelas?.map((item: any) => (
                   <TableRow key={item.id}>
+                    <TableCell>
+                      {item.expand?.usuario?.username}
+                    </TableCell>
                     <TableCell className="font-medium">
-                      {item.username}
+                      {item.nombre}
                     </TableCell>
                     <TableCell>{item.region}</TableCell>
                     <TableCell>{item.municipio}</TableCell>
@@ -119,9 +123,10 @@ async function Usuarios() {
 
                       {item.expand?.tipoBachiller?.descripcion ?? "no aplica"}
                     </TableCell>
+
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <AcualizarEscuela Escuela={item} />
+                        <AcualizarEscuela Escuela={item.expand?.usuario} />
                         <Button variant="outline" size="sm" color="red">
                           Eliminar
                         </Button>
