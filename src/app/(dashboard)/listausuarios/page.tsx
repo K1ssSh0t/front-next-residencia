@@ -17,12 +17,12 @@ import {
 } from "@/components/ui/table";
 import { AgregarEscuelas } from "./agregar-escuela";
 import { AcualizarEscuela } from "./acualizar-escuela";
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
+import { Fragment } from 'react';
 
-export const dynamic = 'force-dynamic'
-
+export const dynamic = "force-dynamic";
 
 async function Usuarios() {
   const cookieStore = cookies();
@@ -38,34 +38,46 @@ async function Usuarios() {
     sort: "-created",
   });
 
+  // Agrupar las escuelas por usuario
+  const escuelasPorUsuario = escuelas.reduce((acc: any, escuela: any) => {
+    const usuarioId = escuela.expand?.usuario?.id;
+    if (!acc[usuarioId]) {
+      acc[usuarioId] = [];
+    }
+    acc[usuarioId].push(escuela);
+    return acc;
+  }, {});
+
   // Obtener todas las preguntas de una sola vez
-  const todasLasPreguntas = await client.collection("test_preguntas").getFullList();
+  const todasLasPreguntas = await client
+    .collection("test_preguntas")
+    .getFullList();
 
   // Agrupar las preguntas por la escuela
-  const preguntasPorEscuela: { [key: string]: any[] } = todasLasPreguntas.reduce(
-    (acc: any, pregunta: any) => {
+  const preguntasPorEscuela: { [key: string]: any[] } =
+    todasLasPreguntas.reduce((acc: any, pregunta: any) => {
       const escuelaId = pregunta.escuela;
       if (!acc[escuelaId]) {
         acc[escuelaId] = [];
       }
       acc[escuelaId].push(pregunta);
       return acc;
-    },
-    {}
-  );
+    }, {});
 
   // Para cada escuela, calcular el estado del cuestionario
   const escuelasConEstado = escuelas.map((escuela: any) => {
     const preguntas = preguntasPorEscuela[escuela.id] || [];
 
     // Determinar el estado del cuestionario
-    let estado = 'Sin empezar';
+    let estado = "Sin empezar";
     if (preguntas.length > 0) {
-      const completadas = preguntas.filter((pregunta: any) => pregunta.test2 === true);
+      const completadas = preguntas.filter(
+        (pregunta: any) => pregunta.test2 === true
+      );
       if (completadas.length === preguntas.length) {
-        estado = 'Terminado';
+        estado = "Terminado";
       } else {
-        estado = 'En progreso';
+        estado = "En progreso";
       }
     }
 
@@ -99,38 +111,44 @@ async function Usuarios() {
                   <TableHead>Nivel Educativo</TableHead>
                   <TableHead>Tipo de Institucion</TableHead>
                   <TableHead>Tipo de Bachiller</TableHead>
-                  <TableHead className="flex items-center justify-center">Acciones</TableHead>
-
+                  <TableHead className="flex items-center justify-center">
+                    Acciones
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className=" capitalize">
-                {escuelas?.map((item: any) => (
+                {usuarios?.map((item: any) => (
                   <TableRow key={item.id}>
-                    <TableCell>
-                      {item.expand?.usuario?.username}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {item.nombre}
-                    </TableCell>
-                    <TableCell>{item.region}</TableCell>
-                    <TableCell>{item.municipio}</TableCell>
-                    <TableCell>
+                    <TableCell>{item.username}</TableCell>
 
-                      {item.expand?.nivelEducativo?.descripcion}
-
-                    </TableCell>
-                    <TableCell>
-
-                      {item.expand?.tipoInstitucion?.descripcion}
-                    </TableCell>
-                    <TableCell>
-
-                      {item.expand?.tipoBachiller?.descripcion ?? "no aplica"}
-                    </TableCell>
-
+                    {escuelasPorUsuario[item.id] ? (
+                      escuelasPorUsuario[item.id].map((escuela: any) => (
+                        <Fragment key={escuela.id}>
+                          <TableCell className="font-medium">
+                            {escuela.nombre}
+                          </TableCell>
+                          <TableCell>{escuela.region}</TableCell>
+                          <TableCell>{escuela.municipio}</TableCell>
+                          <TableCell>
+                            {escuela.expand?.nivelEducativo?.descripcion}
+                          </TableCell>
+                          <TableCell>
+                            {escuela.expand?.tipoInstitucion?.descripcion}
+                          </TableCell>
+                          <TableCell>
+                            {escuela.expand?.tipoBachiller?.descripcion ??
+                              "no aplica"}
+                          </TableCell>
+                        </Fragment>
+                      ))
+                    ) : (
+                      <TableCell colSpan={6} className="text-center">
+                        sin rellenar
+                      </TableCell>
+                    )}
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <AcualizarEscuela Escuela={item.expand?.usuario} />
+                        <AcualizarEscuela Escuela={item} />
                         <Button variant="outline" size="sm" color="red">
                           Eliminar
                         </Button>
@@ -170,23 +188,45 @@ function MountainIcon(props: any) {
 
 // Íconos SVG para los diferentes estados
 function EstadoIcon({ estado }: { estado: string }) {
-  if (estado === 'Sin empezar') {
+  if (estado === "Sin empezar") {
     return (
-      <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        width="16"
+        height="16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <circle cx="8" cy="8" r="7" stroke="#e74c3c" strokeWidth="2" />
       </svg>
     );
-  } else if (estado === 'En progreso') {
+  } else if (estado === "En progreso") {
     return (
-      <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        width="16"
+        height="16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <circle cx="8" cy="8" r="7" stroke="#f39c12" strokeWidth="2" />
         <path d="M8 4v4h4" stroke="#f39c12" strokeWidth="2" />
       </svg>
     );
-  } else if (estado === 'Terminado') {
+  } else if (estado === "Terminado") {
     return (
-      <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="8" cy="8" r="7" stroke="#2ecc71" strokeWidth="2" fill="#2ecc71" />
+      <svg
+        width="16"
+        height="16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle
+          cx="8"
+          cy="8"
+          r="7"
+          stroke="#2ecc71"
+          strokeWidth="2"
+          fill="#2ecc71"
+        />
         <path d="M6 8l2 2 4-4" stroke="white" strokeWidth="2" />
       </svg>
     );

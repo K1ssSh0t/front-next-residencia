@@ -10,14 +10,22 @@ async function getPreguntas() {
   const userId = client.authStore.model?.id;
 
   try {
-    const pregunta = await client
-      .collection("test_preguntas")
-      .getFirstListItem(`escuela="${userId}"`);
+    //const pregunta = await client
+    //  .collection("test_preguntas")
+    //  .getFirstListItem(`escuela="${userId}"`);
+
+    const parteUno = await client.collection("institucion").getFirstListItem(`usuario="${userId}"`, { expand: "nivelEducativo,tipoInstitucion,tipoBachiller,usuario" });
 
     return {
-      tes1: pregunta.tes1,
-      test2: pregunta.test2,
-      id: pregunta.id,
+      nombre: parteUno.nombre,
+      region: parteUno.region,
+      municipio: parteUno.municipio,
+      id: parteUno.id,
+      nivelEducativo: parteUno.expand?.nivelEducativo?.descripcion,
+      tipoInstitucion: parteUno.expand?.tipoInstitucion?.descripcion,
+      tipoBachiller: parteUno.expand?.tipoBachiller?.descripcion,
+
+
     };
   } catch (error) {
     console.error("Error fetching preguntas:", error);
@@ -29,14 +37,25 @@ export default async function Preguntas() {
 
   const preguntas = await getPreguntas();
 
+
+  if (preguntas === null) {
+
+    return (
+
+      <div className=" flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+        {//TODO: HACER UN FORMULARIO PARA Actualizar Y OTRO PARA NUEVOS PREGUNTAS
+        }
+        <h1>No hay preguntas disponibles</h1>
+      </div>
+    );
+  }
+
   return (
 
 
     <div className=" flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <FormPreguntas
-        tes1={preguntas?.tes1}
-        test2={preguntas?.test2}
-        id={preguntas?.id!}
+        preguntas={preguntas}
       />
     </div>
 

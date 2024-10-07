@@ -17,33 +17,50 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 
-export default function FormPreguntas(preguntas: {
-  tes1: string;
-  test2: boolean;
-  id: string;
+export default function FormPreguntas({ preguntas }: {
+  preguntas: {
+    nombre: string,
+    region: string,
+    municipio: string,
+    id: string,
+    nivelEducativo: string,
+    tipoInstitucion: string,
+    tipoBachiller: string
+  } | null
 }) {
   console.log(preguntas);
   const navigate = useRouter();
   const client = createBrowserClient();
-  const existe = preguntas.id ? true : false;
+  const existe = preguntas?.id ? true : false;
 
   const formSchema = z.object({
-    pregunta1: z.string().min(2).max(50).default(preguntas.tes1),
-    pregunta2: z.boolean().default(preguntas.test2),
-    //pregunta3: z.string().min(5),
+    nombre: z.string().min(2).max(50),
+    region: z.string().optional(),
+    municipio: z.string().optional(),
+    nivelEducativo: z.string().min(2).max(50).optional(),
+    tipoInstitucion: z.string().min(2).max(50).optional(),
+    tipoBachiller: z.string().min(2).max(50).optional(),
+
   });
 
   // This can come from your database or API.
   const values: z.infer<typeof formSchema> = {
-    //pregunta1: "fsdfdsfdsfdsf",
-    pregunta1: preguntas.tes1,
-    pregunta2: preguntas.test2,
+    nombre: preguntas?.nombre as string,
+    region: preguntas?.region,
+    municipio: preguntas?.municipio,
+    nivelEducativo: preguntas?.nivelEducativo,
+    tipoInstitucion: preguntas?.tipoInstitucion,
+    tipoBachiller: preguntas?.tipoBachiller,
+
   };
 
   const defaultValues: Partial<z.infer<typeof formSchema>> = {
-    //pregunta1: "fsdfdsfdsfdsf",
-    pregunta1: preguntas.tes1,
-    pregunta2: preguntas.test2,
+    nombre: preguntas?.nombre,
+    region: preguntas?.region,
+    municipio: preguntas?.municipio,
+    nivelEducativo: preguntas?.nivelEducativo,
+    tipoInstitucion: preguntas?.tipoInstitucion,
+    tipoBachiller: preguntas?.tipoBachiller,
   };
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -58,17 +75,21 @@ export default function FormPreguntas(preguntas: {
     // ✅ This will be type-safe and validated.
     // example create data
     const data = {
-      tes1: values.pregunta1,
-      test2: values.pregunta2,
-      escuela: client.authStore.model?.id,
+      nombre: values.nombre,
+      region: values.region,
+      municipio: values.municipio,
+      nivelEducativo: values.nivelEducativo,
+      tipoInstitucion: values.tipoInstitucion,
+      tipoBachiller: values.tipoBachiller,
+      usuario: client.authStore.model?.id,
     };
     console.log(values);
 
     if (existe) {
       try {
         console.log("IDDDD");
-        console.log(preguntas.id);
-        await client.collection("test_preguntas").update(preguntas.id, data);
+        console.log(preguntas!.id);
+        await client.collection("institucion").update(preguntas!.id, data);
 
         navigate.refresh();
       } catch (error) {
@@ -78,7 +99,7 @@ export default function FormPreguntas(preguntas: {
       }
     }
     try {
-      await client.collection("test_preguntas").create(data);
+      await client.collection("institucion").create(data);
 
       navigate.refresh();
     } catch (error) {
@@ -93,12 +114,12 @@ export default function FormPreguntas(preguntas: {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
-            name="pregunta1"
+            name="nombre"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Pregunta 1</FormLabel>
+                <FormLabel>Nombre</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder={preguntas.tes1} />
+                  <Input {...field} placeholder={preguntas?.nombre} />
                 </FormControl>
                 <FormDescription>
                   This is your public display name.
@@ -109,17 +130,33 @@ export default function FormPreguntas(preguntas: {
           />
           <FormField
             control={form.control}
-            name="pregunta2"
+            name="region"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Pregunta 2</FormLabel>
+                <FormLabel>Region</FormLabel>
                 <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Input {...field} placeholder={preguntas?.region} />
                 </FormControl>
-                <FormDescription>Tu contraseña</FormDescription>
+                <FormDescription>
+                  This is your public display name.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="municipio"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Municpio</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder={preguntas?.municipio} />
+                </FormControl>
+                <FormDescription>
+                  This is your public display name.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
