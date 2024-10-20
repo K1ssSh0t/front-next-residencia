@@ -33,6 +33,50 @@ async function ListaPreguntas() {
 
   let estadoCuestionario = "";
 
+
+  const preguntasCuestionario = await client.collection("Preguntas").getFullList({
+    sort: "idCuestionario",
+    expand: "idCuestionario.idUsuario",
+  });
+
+  // grour preguntasCuestionario that have the same idCuestionario 
+  const preguntasAgrupadas = preguntasCuestionario.reduce((acc: any, pregunta: any) => {
+    const cuestionarioId = pregunta.idCuestionario;
+    if (!acc[cuestionarioId]) {
+      acc[cuestionarioId] = [];
+    }
+    acc[cuestionarioId].push(pregunta);
+    return acc;
+  }, {});
+
+  //console.log(preguntasAgrupadas);
+
+  // Para cada cuestionario, calcular el estado del cuestionario
+  /*const cuestionariosConEstado = Object.entries(preguntasAgrupadas).map(([cuestionarioId, preguntas]) => {
+    // Determinar el estado del cuestionario
+    let estado = "Sin empezar";
+    if (preguntas.length > 0) {
+      const completadas = preguntas.filter(
+        (pregunta: any) => pregunta.test2 === true
+      );
+      if (completadas.length === preguntas.length) {
+        estado = "Terminado";
+      } else {
+        estado = "En progreso";
+      }
+    }
+
+    return {
+      id: cuestionarioId,
+      estadoCuestionario: estado,
+    };
+  });*/
+
+  //console.log(cuestionariosConEstado);
+
+
+
+
   //TODO: HACER QUE SE MUESTREN TODAS LOS CAMPOS DE UNA ESCUELA EN UNA SOLA FILA
   const preguntas = await client.collection("estadisticaSuperior").getFullList({
     sort: "-created",
@@ -46,6 +90,7 @@ async function ListaPreguntas() {
   } else {
     estadoCuestionario = "Activado"
   }
+
 
   // Agrupar los datos por institución
   const datosAgrupados = preguntas.reduce<Record<string, InstitucionData>>((acc, item) => {

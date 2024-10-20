@@ -16,30 +16,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+import { SuperiorResponse } from "@/types/pocketbase-types";
+import { TipoInstitucionResponse } from "@/types/pocketbase-types";
 
-export default function FormPreguntas({ preguntas }: {
-  preguntas: {
-    nombre: string,
-    region: string,
-    municipio: string,
-    id: string,
-    nivelEducativo: string,
-    tipoInstitucion: string,
-    tipoBachiller: string
-  } | null
-}) {
-  console.log(preguntas);
+export default function FormPreguntas({ preguntas, tiposDeInstitucion }: { preguntas: SuperiorResponse | undefined, tiposDeInstitucion: TipoInstitucionResponse[] }) {
+  //console.log(preguntas);
+  console.log(tiposDeInstitucion);
   const navigate = useRouter();
   const client = createBrowserClient();
-  const existe = preguntas?.id ? true : false;
+  const existe = preguntas?.id
 
   const formSchema = z.object({
     nombre: z.string().min(2).max(50),
     region: z.string().optional(),
     municipio: z.string().optional(),
-    nivelEducativo: z.string().min(2).max(50).optional(),
-    tipoInstitucion: z.string().min(2).max(50).optional(),
-    tipoBachiller: z.string().min(2).max(50).optional(),
+    //tipoInstitucion: z.string().min(2).max(50).optional(),
+
 
   });
 
@@ -48,9 +40,8 @@ export default function FormPreguntas({ preguntas }: {
     nombre: preguntas?.nombre as string,
     region: preguntas?.region,
     municipio: preguntas?.municipio,
-    nivelEducativo: preguntas?.nivelEducativo,
-    tipoInstitucion: preguntas?.tipoInstitucion,
-    tipoBachiller: preguntas?.tipoBachiller,
+    //tipoInstitucion: preguntas?.idTipoInstitucion,
+
 
   };
 
@@ -58,9 +49,8 @@ export default function FormPreguntas({ preguntas }: {
     nombre: preguntas?.nombre,
     region: preguntas?.region,
     municipio: preguntas?.municipio,
-    nivelEducativo: preguntas?.nivelEducativo,
-    tipoInstitucion: preguntas?.tipoInstitucion,
-    tipoBachiller: preguntas?.tipoBachiller,
+    //tipoInstitucion: preguntas?.idTipoInstitucion
+
   };
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -71,6 +61,8 @@ export default function FormPreguntas({ preguntas }: {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
+
+    console.log("boton apretado")
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     // example create data
@@ -78,18 +70,17 @@ export default function FormPreguntas({ preguntas }: {
       nombre: values.nombre,
       region: values.region,
       municipio: values.municipio,
-      nivelEducativo: values.nivelEducativo,
-      tipoInstitucion: values.tipoInstitucion,
-      tipoBachiller: values.tipoBachiller,
-      usuario: client.authStore.model?.id,
+      // idTipoInstitucion: values.tipoInstitucion,
+      idUsuario: client.authStore.model?.id,
     };
-    console.log(values);
+    //console.log(values);
 
     if (existe) {
       try {
         console.log("IDDDD");
-        console.log(preguntas!.id);
-        await client.collection("institucion").update(preguntas!.id, data);
+        console.log("Actualizando")
+        console.log(preguntas?.id);
+        await client.collection("Superior").update(preguntas!.id, data);
 
         navigate.refresh();
       } catch (error) {
@@ -99,7 +90,8 @@ export default function FormPreguntas({ preguntas }: {
       }
     }
     try {
-      await client.collection("institucion").create(data);
+      console.log("Creando")
+      await client.collection("Superior").create(data);
 
       navigate.refresh();
     } catch (error) {

@@ -70,7 +70,7 @@ export function AgregarEscuelas() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     async function fetchData() {
-      const record = await client.collection("usuario").create(data);
+      const record = await client.collection("Usuario").create(data);
       console.log(record);
       return record;
     }

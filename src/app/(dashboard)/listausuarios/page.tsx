@@ -29,18 +29,18 @@ async function Usuarios() {
 
   const client = createServerClient(cookieStore);
 
-  const escuelas = await client.collection("institucion").getFullList({
+  const escuelas = await client.collection("Superior").getFullList({
     sort: "-created",
-    expand: "nivelEducativo,tipoInstitucion,tipoBachiller,usuario",
+    expand: "idTipoInstitucion,idUsuario",
   });
 
-  const usuarios = await client.collection("usuario").getFullList({
+  const usuarios = await client.collection("Usuario").getFullList({
     sort: "-created",
   });
 
   // Agrupar las escuelas por usuario
   const escuelasPorUsuario = escuelas.reduce((acc: any, escuela: any) => {
-    const usuarioId = escuela.expand?.usuario?.id;
+    const usuarioId = escuela.expand?.idUsuario?.id;
     if (!acc[usuarioId]) {
       acc[usuarioId] = [];
     }
@@ -48,24 +48,26 @@ async function Usuarios() {
     return acc;
   }, {});
 
+  console.log("test", escuelasPorUsuario)
+
   // Obtener todas las preguntas de una sola vez
-  const todasLasPreguntas = await client
+  /*const todasLasPreguntas = await client
     .collection("test_preguntas")
     .getFullList();
-
+*/
   // Agrupar las preguntas por la escuela
-  const preguntasPorEscuela: { [key: string]: any[] } =
-    todasLasPreguntas.reduce((acc: any, pregunta: any) => {
-      const escuelaId = pregunta.escuela;
-      if (!acc[escuelaId]) {
-        acc[escuelaId] = [];
-      }
-      acc[escuelaId].push(pregunta);
-      return acc;
-    }, {});
+  /* const preguntasPorEscuela: { [key: string]: any[] } =
+     todasLasPreguntas.reduce((acc: any, pregunta: any) => {
+       const escuelaId = pregunta.escuela;
+       if (!acc[escuelaId]) {
+         acc[escuelaId] = [];
+       }
+       acc[escuelaId].push(pregunta);
+       return acc;
+     }, {});*/
 
   // Para cada escuela, calcular el estado del cuestionario
-  const escuelasConEstado = escuelas.map((escuela: any) => {
+  /*const escuelasConEstado = escuelas.map((escuela: any) => {
     const preguntas = preguntasPorEscuela[escuela.id] || [];
 
     // Determinar el estado del cuestionario
@@ -85,7 +87,7 @@ async function Usuarios() {
       ...escuela,
       estadoCuestionario: estado,
     };
-  });
+  });*/
 
   return (
     <div className="container mx-auto my-8">
@@ -108,7 +110,7 @@ async function Usuarios() {
                   <TableHead>Nombre</TableHead>
                   <TableHead>Region</TableHead>
                   <TableHead>Municipio</TableHead>
-                  <TableHead>Nivel Educativo</TableHead>
+                  <TableHead>Nivel</TableHead>
                   <TableHead>Tipo de Institucion</TableHead>
                   <TableHead>Tipo de Bachiller</TableHead>
                   <TableHead className="flex items-center justify-center">
@@ -130,10 +132,10 @@ async function Usuarios() {
                           <TableCell>{escuela.region}</TableCell>
                           <TableCell>{escuela.municipio}</TableCell>
                           <TableCell>
-                            {escuela.expand?.nivelEducativo?.descripcion}
+                            {item.nivelEducativo ? "superior" : "medio superior"}
                           </TableCell>
                           <TableCell>
-                            {escuela.expand?.tipoInstitucion?.descripcion}
+                            {escuela.expand?.idTipoInstitucion?.descripcion}
                           </TableCell>
                           <TableCell>
                             {escuela.expand?.tipoBachiller?.descripcion ??

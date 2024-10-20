@@ -50,7 +50,7 @@ export default function Login() {
     console.log(values);
     try {
       await client
-        .collection("usuario")
+        .collection("Usuario")
         .authWithPassword(values.username, values.password);
       navigate.push("/preguntas");
     } catch (error) {
