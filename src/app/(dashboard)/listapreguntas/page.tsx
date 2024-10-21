@@ -41,17 +41,38 @@ async function ListaPreguntas() {
     expand: "idCuestionario.idUsuario,idCategoria",
   });
 
+  const datosInstitucion = await client.collection("Superior").getFullList({
+
+  })
+
   // grour preguntasCuestionario that have the same idCuestionario 
+  // Agrupar las preguntas por idCuestionario
   const preguntasAgrupadas = preguntasCuestionario.reduce((acc: any, pregunta: any) => {
-    const cuestionarioId = pregunta.idCuestionario;
-    if (!acc[cuestionarioId]) {
-      acc[cuestionarioId] = [];
+    const idCuestionario = pregunta.idCuestionario;
+    const idUsuarioPregunta = pregunta.expand?.idCuestionario?.expand?.idUsuario?.id;
+
+    // Buscar la institución correspondiente al idUsuario
+    const institucion = datosInstitucion.find(
+      (inst: any) => inst.idUsuario === idUsuarioPregunta
+    );
+
+    // Añadir los datos de la institución (si existe)
+    if (institucion) {
+      //pregunta.datosInstitucion = institucion;
     }
-    acc[cuestionarioId].push(pregunta);
+
+    // Agrupar por idCuestionario
+    if (!acc[idCuestionario]) {
+      acc[idCuestionario] = [];
+    }
+    acc[idCuestionario].push(pregunta);
+    acc[idCuestionario].institucion = institucion
+
     return acc;
   }, {});
 
-  //console.log(preguntasAgrupadas)
+
+  console.log(preguntasAgrupadas)
 
   const categoriasGeneros = Array.from(new Set(preguntasCuestionario.map((item: any) =>
     `${item.expand?.idCategoria?.descripcion}`
