@@ -48,7 +48,10 @@ async function Usuarios() {
     return acc;
   }, {});
 
-  console.log("test", escuelasPorUsuario)
+  //console.log("test", escuelasPorUsuario)
+
+
+
 
   // Obtener todas las preguntas de una sola vez
   /*const todasLasPreguntas = await client

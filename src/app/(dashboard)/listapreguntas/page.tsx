@@ -19,6 +19,8 @@ import { ExportCSV } from "./descargar-csv";
 import { cookies } from 'next/headers';
 
 import { ActualizarReglas } from './actualizar-reglas';
+import { BaseSystemFields, PreguntasRecord } from '@/types/pocketbase-types';
+import { Fragment } from 'react';
 
 interface InstitucionData {
   nombre: string;
@@ -36,7 +38,7 @@ async function ListaPreguntas() {
 
   const preguntasCuestionario = await client.collection("Preguntas").getFullList({
     sort: "idCuestionario",
-    expand: "idCuestionario.idUsuario",
+    expand: "idCuestionario.idUsuario,idCategoria",
   });
 
   // grour preguntasCuestionario that have the same idCuestionario 
@@ -49,6 +51,16 @@ async function ListaPreguntas() {
     return acc;
   }, {});
 
+  //console.log(preguntasAgrupadas)
+
+  const categoriasGeneros = Array.from(new Set(preguntasCuestionario.map((item: any) =>
+    `${item.expand?.idCategoria?.descripcion}`
+  )));
+
+  const categoriasUnicas = [
+    ...new Set(Object.values(preguntasAgrupadas).flat().map((pregunta: any) => pregunta.expand.idCategoria.descripcion)),
+  ];
+  //console.log(categoriasUnicas)
   //console.log(preguntasAgrupadas);
 
   // Para cada cuestionario, calcular el estado del cuestionario
@@ -78,6 +90,7 @@ async function ListaPreguntas() {
 
 
   //TODO: HACER QUE SE MUESTREN TODAS LOS CAMPOS DE UNA ESCUELA EN UNA SOLA FILA
+  /*
   const preguntas = await client.collection("estadisticaSuperior").getFullList({
     sort: "-created",
     expand: "idInstitucion.usuario,categoriaPersona,genero",
@@ -113,7 +126,7 @@ async function ListaPreguntas() {
   const categoriasGeneros = Array.from(new Set(preguntas.map(item =>
     `${item.expand?.categoriaPersona?.descripcion}-${item.expand?.genero?.descripcion}`
   )));
-
+*/
   return (
     <div className="container mx-auto my-8">
       <div className="flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
@@ -127,32 +140,67 @@ async function ListaPreguntas() {
             </div>
           </CardHeader>
           <CardContent>
+            {
+              /*
+            
             <div>{collection.createRule}</div>
-            <div>{collection.updateRule}</div>
+            <div>{collection.updateRule}</div>*/}
             <div>Estado del Cuestionario: {estadoCuestionario}</div>
             <div className=" flex items-center justify-between">
               <ActualizarReglas datos={estadoCuestionario} />
-              <ExportCSV data={preguntas} />
+              {// <ExportCSV data={preguntas} />
+              }
             </div>
 
             <Table>
               <TableHeader>
                 <TableRow className="capitalize">
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>Codigo de Centro</TableHead>
-                  {categoriasGeneros.map(cg => (
-                    <TableHead key={cg}>{cg}</TableHead>
+
+                  <TableHead>Codigo</TableHead>
+                  {categoriasUnicas.map((categoria) => (
+                    <TableHead key={categoria} colSpan={2} className=' text-center'>
+                      {categoria}
+                    </TableHead>
+                  ))}
+
+
+                </TableRow>
+                <TableRow>
+                  <TableHead></TableHead>
+                  {categoriasUnicas.map((categoria) => (
+                    <Fragment key={categoria}>
+                      <TableHead>Hombres</TableHead>
+                      <TableHead>Mujeres</TableHead>
+                    </Fragment>
                   ))}
                 </TableRow>
               </TableHeader>
               <TableBody className='capitalize'>
-                {Object.values(datosAgrupados).map((institucion) => (
+                {/*Object.values(datosAgrupados).map((institucion) => (
                   <TableRow key={institucion.nombre}>
                     <TableCell className="font-medium">{institucion.nombre}</TableCell>
                     <TableCell className="font-medium">{institucion.codigo}</TableCell>
                     {categoriasGeneros.map(cg => (
                       <TableCell key={cg}>{institucion.datos[cg] || 0}</TableCell>
                     ))}
+                  </TableRow>
+                ))*/}
+                {Object.keys(preguntasAgrupadas).map((idCuestionario) => (
+                  <TableRow key={idCuestionario}>
+                    <TableCell>{idCuestionario}</TableCell>
+                    {categoriasUnicas.map((categoria) => {
+                      const pregunta = preguntasAgrupadas[idCuestionario].find(
+                        (pregunta: any) => pregunta.expand.idCategoria.descripcion === categoria
+                      );
+                      const cantidadHombres = pregunta?.cantidadHombres || "N/A";
+                      const cantidadMujeres = pregunta?.cantidadMujeres || "N/A";
+                      return (
+                        <Fragment key={categoria}>
+                          <TableCell>{cantidadHombres}</TableCell>
+                          <TableCell>{cantidadMujeres}</TableCell>
+                        </Fragment>
+                      );
+                    })}
                   </TableRow>
                 ))}
               </TableBody>
