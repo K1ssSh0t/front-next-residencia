@@ -17,15 +17,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
 
-
+  const { toast } = useToast();
   const client = createBrowserClient();
   const navigate = useRouter();
   const formSchema = z.object({
     username: z.string().min(2).max(50),
-    password: z.string().min(5),
+    password: z.string().min(5, {
+      message: "La contraseña de ser de por lo menos 5 caracteres",
+    }),
   });
   useEffect(() => {
     console.log(client.authStore.isValid);
@@ -52,9 +55,20 @@ export default function Login() {
       await client
         .collection("Usuario")
         .authWithPassword(values.username, values.password);
+
+      toast({
+        title: "Login exitoso",
+        description: "Has iniciado sesión correctamente.",
+        variant: "success",
+      });
       navigate.push("/preguntas");
     } catch (error) {
       console.log(error);
+      toast({
+        title: "Error de inicio de sesión",
+        description: "Usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.",
+        variant: "destructive",
+      });
     } finally {
     }
   }

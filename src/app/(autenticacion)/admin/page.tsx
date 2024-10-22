@@ -18,8 +18,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLogin() {
+  const { toast } = useToast();
   const client = createBrowserClient();
   const navigate = useRouter();
   const formSchema = z.object({
@@ -54,9 +56,19 @@ export default function AdminLogin() {
     console.log(values);
     try {
       await client.admins.authWithPassword(values.username, values.password);
+      toast({
+        title: "Login exitoso",
+        description: "Has iniciado sesión correctamente.",
+        variant: "success",
+      });
       navigate.push("/listausuarios");
     } catch (error) {
       console.log(error);
+      toast({
+        title: "Error de inicio de sesión",
+        description: "Usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.",
+        variant: "destructive",
+      });
     } finally {
     }
   }
