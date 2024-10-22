@@ -45,42 +45,56 @@ async function ListaPreguntas() {
 
   })
 
+  //console.log(datosInstitucion)
   // grour preguntasCuestionario that have the same idCuestionario 
   // Agrupar las preguntas por idCuestionario
   const preguntasAgrupadas = preguntasCuestionario.reduce((acc: any, pregunta: any) => {
     const idCuestionario = pregunta.idCuestionario;
-    const idUsuarioPregunta = pregunta.expand?.idCuestionario?.expand?.idUsuario?.id;
+    const idUsuarioCuestionario = pregunta.expand?.idCuestionario?.expand.idUsuario?.id;
 
-    // Buscar la institución correspondiente al idUsuario
-    const institucion = datosInstitucion.find(
-      (inst: any) => inst.idUsuario === idUsuarioPregunta
-    );
-
-    // Añadir los datos de la institución (si existe)
-    if (institucion) {
-      //pregunta.datosInstitucion = institucion;
-    }
-
-    // Agrupar por idCuestionario
+    // Si el cuestionario aún no ha sido agregado al objeto agrupado
     if (!acc[idCuestionario]) {
-      acc[idCuestionario] = [];
+      acc[idCuestionario] = {
+        preguntas: [],
+        datosInstitucion: {}
+      };
+
+      // Buscar la institución correspondiente al idUsuario del cuestionario
+      const institucion = datosInstitucion.find(
+        (inst: any) => inst.idUsuario === idUsuarioCuestionario
+      );
+      // console.log(institucion)
+      // Asignar la institución al cuestionario (si existe)
+      if (institucion) {
+
+        acc[idCuestionario].datosInstitucion = institucion;
+      }
     }
-    acc[idCuestionario].push(pregunta);
-    acc[idCuestionario].institucion = institucion
+
+    // Agregar la pregunta a la lista de preguntas del cuestionario
+    acc[idCuestionario].preguntas.push(pregunta);
 
     return acc;
   }, {});
 
 
-  console.log(preguntasAgrupadas)
+  // console.log(JSON.stringify(preguntasAgrupadas))
+  const categorias = new Set<string>();
 
-  const categoriasGeneros = Array.from(new Set(preguntasCuestionario.map((item: any) =>
-    `${item.expand?.idCategoria?.descripcion}`
-  )));
+  // Iterar sobre cada conjunto de preguntas agrupadas por cuestionario
+  Object.values(preguntasAgrupadas).forEach((data: any) => {
+    // Iterar sobre las preguntas de cada cuestionario
+    data.preguntas.forEach((pregunta: any) => {
+      // Agregar la categoría de cada pregunta al Set
+      if (pregunta.expand?.idCategoria?.descripcion) {
+        categorias.add(pregunta.expand?.idCategoria?.descripcion);
+      }
+    });
+  });
 
-  const categoriasUnicas = [
-    ...new Set(Object.values(preguntasAgrupadas).flat().map((pregunta: any) => pregunta.expand.idCategoria.descripcion)),
-  ];
+  const categoriasUnicas = Array.from(categorias);
+
+  //console.log(JSON.stringify(categoriasUnicas))
   //console.log(categoriasUnicas)
   //console.log(preguntasAgrupadas);
 
@@ -178,6 +192,9 @@ async function ListaPreguntas() {
                 <TableRow className="capitalize">
 
                   <TableHead>Codigo</TableHead>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Region</TableHead>
+                  <TableHead>Municipio</TableHead>
                   {categoriasUnicas.map((categoria) => (
                     <TableHead key={categoria} colSpan={2} className=' text-center'>
                       {categoria}
@@ -187,6 +204,9 @@ async function ListaPreguntas() {
 
                 </TableRow>
                 <TableRow>
+                  <TableHead></TableHead>
+                  <TableHead></TableHead>
+                  <TableHead></TableHead>
                   <TableHead></TableHead>
                   {categoriasUnicas.map((categoria) => (
                     <Fragment key={categoria}>
@@ -206,24 +226,35 @@ async function ListaPreguntas() {
                     ))}
                   </TableRow>
                 ))*/}
-                {Object.keys(preguntasAgrupadas).map((idCuestionario) => (
-                  <TableRow key={idCuestionario}>
-                    <TableCell>{idCuestionario}</TableCell>
-                    {categoriasUnicas.map((categoria) => {
-                      const pregunta = preguntasAgrupadas[idCuestionario].find(
-                        (pregunta: any) => pregunta.expand.idCategoria.descripcion === categoria
-                      );
-                      const cantidadHombres = pregunta?.cantidadHombres || "N/A";
-                      const cantidadMujeres = pregunta?.cantidadMujeres || "N/A";
-                      return (
-                        <Fragment key={categoria}>
-                          <TableCell>{cantidadHombres}</TableCell>
-                          <TableCell>{cantidadMujeres}</TableCell>
-                        </Fragment>
-                      );
-                    })}
-                  </TableRow>
-                ))}
+                {Object.entries(preguntasAgrupadas).map(([idCuestionario, data]: any) => {
+                  console.log(data.preguntas)
+
+                  return (
+                    <TableRow key={idCuestionario}>
+
+                      <TableCell>{idCuestionario}</TableCell>
+                      <TableCell>{data.datosInstitucion?.nombre}</TableCell>
+                      <TableCell>{data.datosInstitucion?.region}</TableCell>
+                      <TableCell>{data.datosInstitucion?.municipio}</TableCell>
+                      {categoriasUnicas.map((categoria) => {
+
+                        const pregunta = data.preguntas.find(
+                          (pregunta: any) => pregunta?.expand?.idCategoria?.descripcion === categoria
+                        );
+                        const cantidadHombres = pregunta?.cantidadHombres || "N/A";
+                        const cantidadMujeres = pregunta?.cantidadMujeres || "N/A";
+                        return (
+
+                          <Fragment key={categoria}>
+
+                            <TableCell>{cantidadHombres}</TableCell>
+                            <TableCell>{cantidadMujeres}</TableCell>
+                          </Fragment>
+                        );
+                      })}
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           </CardContent>
