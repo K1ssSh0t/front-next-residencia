@@ -45,6 +45,7 @@ async function ListaPreguntas() {
 
   })
 
+  //TODO:HACER QUE TEMO SOLO LAS QUE TENGAN EL ATRIUBTO PREGUNTA.EXPAND.IDCUESTIONARIO.EXPAND.IDUSUARIO.NIVEL=TRUE
   //console.log(datosInstitucion)
   // grour preguntasCuestionario that have the same idCuestionario 
   // Agrupar las preguntas por idCuestionario
@@ -56,7 +57,8 @@ async function ListaPreguntas() {
     if (!acc[idCuestionario]) {
       acc[idCuestionario] = {
         preguntas: [],
-        datosInstitucion: {}
+        datosInstitucion: {},
+        datosUsuario: {}
       };
 
       // Buscar la institución correspondiente al idUsuario del cuestionario
@@ -68,12 +70,15 @@ async function ListaPreguntas() {
       if (institucion) {
 
         acc[idCuestionario].datosInstitucion = institucion;
+
+
       }
     }
 
     // Agregar la pregunta a la lista de preguntas del cuestionario
     acc[idCuestionario].preguntas.push(pregunta);
-
+    acc[idCuestionario].datosUsuario = pregunta.expand?.idCuestionario?.expand.idUsuario;
+    acc[idCuestionario].carrera = pregunta.expand?.idCuestionario?.carrera
     return acc;
   }, {});
 
@@ -96,7 +101,7 @@ async function ListaPreguntas() {
 
   //console.log(JSON.stringify(categoriasUnicas))
   //console.log(categoriasUnicas)
-  //console.log(preguntasAgrupadas);
+  // console.log(preguntasAgrupadas);
 
   // Para cada cuestionario, calcular el estado del cuestionario
   /*const cuestionariosConEstado = Object.entries(preguntasAgrupadas).map(([cuestionarioId, preguntas]) => {
@@ -195,6 +200,7 @@ async function ListaPreguntas() {
                   <TableHead>Nombre</TableHead>
                   <TableHead>Region</TableHead>
                   <TableHead>Municipio</TableHead>
+                  <TableHead >Carrera</TableHead>
                   {categoriasUnicas.map((categoria) => (
                     <TableHead key={categoria} colSpan={2} className=' text-center'>
                       {categoria}
@@ -204,6 +210,7 @@ async function ListaPreguntas() {
 
                 </TableRow>
                 <TableRow>
+                  <TableHead></TableHead>
                   <TableHead></TableHead>
                   <TableHead></TableHead>
                   <TableHead></TableHead>
@@ -232,10 +239,11 @@ async function ListaPreguntas() {
                   return (
                     <TableRow key={idCuestionario}>
 
-                      <TableCell>{idCuestionario}</TableCell>
+                      <TableCell>{data.datosUsuario?.username}</TableCell>
                       <TableCell>{data.datosInstitucion?.nombre}</TableCell>
                       <TableCell>{data.datosInstitucion?.region}</TableCell>
                       <TableCell>{data.datosInstitucion?.municipio}</TableCell>
+                      <TableCell>{data.carrera}</TableCell>
                       {categoriasUnicas.map((categoria) => {
 
                         const pregunta = data.preguntas.find(

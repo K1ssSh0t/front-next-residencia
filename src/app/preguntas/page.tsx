@@ -3,6 +3,9 @@ import { createServerClient } from "@/utils/pocketbase";
 import React from "react";
 import { ClientResponseError } from "pocketbase";
 import { cookies } from "next/headers";
+import TabsFormularios from "./TabsFormularios";
+import { ScrollToTop } from "@/components/scroll-to-top";
+import { ArrowUpToLine } from "lucide-react";
 
 async function getInstitucion() {
   const cookiesStore = cookies();
@@ -83,7 +86,12 @@ export default async function Preguntas() {
 
 
     <div className=" flex items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
-      <FormPreguntas
+
+      {/* <FormPreguntas
+        preguntas={preguntas!}
+        tiposDeInstitucion={tiposDeInstitucion}
+      />*/}
+      <TabsFormularios
         preguntas={preguntas!}
         tiposDeInstitucion={tiposDeInstitucion}
       />
