@@ -40,6 +40,13 @@ export default function PreguntasLayout({
                                 <Button variant="outline" asChild>
                                     <Link href="/">Inicio</Link>
                                 </Button>
+                                <Button variant="link" asChild>
+                                    <Link href="/preguntas">Preguntas</Link>
+                                </Button>
+                                <pre>|</pre>
+                                <Button variant="link" asChild>
+                                    <Link href="/respuestas">Respuestas</Link>
+                                </Button>
                             </>
                         ) : (
                             <Button variant="outline" asChild>
